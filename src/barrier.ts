@@ -3,57 +3,94 @@
  * A TypeScript implementation of the synchronization primitive
  */
 
-import is from '@sindresorhus/is'
-
-
-interface PromiseBarrier<T> {
-    pass: (value: T | Error) => T
-
-    count: number
-    // passes: T
-    resolve: (value?: T | PromiseLike<T> | undefined) => void
-    reject: (reason?: any) => void
-}
-
 
 /**
- * TODO: document
+ * Create a barrier that stalls until `count` other executing-contexts
+ * reach the barrier.
+ *
+ * @remarks
+ * A barrier is implemented with a `Promise` that will resolve after
+ * `count` additional invocations. This means you can wait for a
+ * barrier to be fulfilled like you would any other `Promise`:
+ *
+ * ```ts
+ * const barrier = makeBarrier()
+ *
+ * setTimeout(() => barrier(), 1000)
+ *
+ * console.log('waiting for timeout to reach barrier...')
+ * await barrier()
+ * console.log('timeout concluded, now past the barrier')
+ * ```
+ *
+ * Or to in a synchronous context
+ *
+ * ```ts
+ * const barrier = makeBarrier()
+ *
+ * setTimeout(() => barrier(), 1000)
+ *
+ * console.log('waiting at the barrier')
+ * barrier().then(() => console.log('past the barrier'))
+ * ```
+ *
+ * Remember that `makeBarrier` returns a _function_, which must be
+ * invoked to indicate an executing-context has reached the barrier.
+ *
+ *
+ * A value can be resolved through the barrier from each
+ * executing-context to reach the check-point
+ *
+ * ```ts
+ * const barrier = makeBarrier<number>()
+ *
+ * setTimeout(() => barrier(42), 1000)
+ *
+ * console.log('waiting for the answer...')
+ * const value: number[] = await barrier()
+ * console.log('the answer appears to be', value[0])
+ * ```
+ *
+ * Array destructuring can clean up the syntax when `count` === 1
+ *
+ * ```ts
+ * const barrier = makeBarrier<number>()
+ *
+ * setTimeout(() => barrier(42), 1000)
+ *
+ * console.log('waiting for the answer...')
+ * const [value]: number = await barrier()
+ * console.log('the answer appears to be', value)
+ * ```
+ *
+ * @param count - Number of executing-contexts needed to reach the
+ * barrier before the `Promise` resolves
+ * @returns Function that returns a `Promise` resolving after `count`
+ * additional invocations
  */
-export default class Barrier<T> {
+export default function makeBarrier<T>(count = 1): (value?: T | undefined) => Promise<T[]> {
 
-    count: number
-    // passes: T
+    let calls = 0
+    let values: T[] = []
+    let resolve: (value?: T[] | PromiseLike<T[]> | undefined) => void
+    let resolved = false
 
-    resolve: (value?: T | PromiseLike<T> | undefined) => void = () => {}
-    reject: (reason?: any) => void = () => {}
+    const promise = new Promise<T[]>((_resolve, _reject) => {
+        resolve = _resolve
+    })
 
-    // TODO: separate constructors for count === 1 and count > 1
-    constructor(count = 1) {
-       this.count = count
+    return function barrier(value?: T) {
+        calls++
 
-        const promise: any = new Promise<T>((resolve, reject) => {
-            this.resolve = resolve
-            this.reject = reject
-        })
-        promise.pass = this.pass.bind(this)
-        return promise as Promise<T> & PromiseBarrier<T>
-    }
-
-
-    pass(value?: T | Error) {
-        if (is.error(value)) {
-            return this.reject(value)
+        if (!resolved && value !== undefined) {
+            values.push(value)
         }
 
-        // this.passes.push(value)
-
-        if (--this.count) {
-            return
+        if (calls > count) {
+            resolved = true
+            resolve(values)
         }
 
-        console.log('resolving value', value)
-        return this.resolve(value)
+        return promise
     }
-
-
 }
