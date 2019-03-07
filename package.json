@@ -38,6 +38,7 @@
   },
   "homepage": "https://github.com/strong-roots-capital/barrier",
   "dependencies": {
+    "@sindresorhus/is": "^0.15.0",
     "@types/node": "^10.12.18",
     "typescript": "^3.2.2"
   },
