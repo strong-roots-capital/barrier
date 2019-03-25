@@ -13,7 +13,7 @@ npm install @strong-roots-capital/barrier
 Create a barrier to suspend the current executing-context
 
 ``` typescript
-import barrier from '@strong-roots-capital/barrier'
+import makeBarrier from '@strong-roots-capital/barrier'
 const barrier = makeBarrier()
 ```
 
