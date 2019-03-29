@@ -23,6 +23,11 @@
   "files": [
     "dist/"
   ],
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run typedoc && git add doc && (git commit -m 'Update documentation' || true)"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/strong-roots-capital/barrier.git"
@@ -42,6 +47,7 @@
     "@types/node": "^10.12.18",
     "ava": "^1.0.0",
     "codecov": "^3.1.0",
+    "husky": "^1.3.1",
     "nyc": "^13.1.0",
     "tap-nyc": "^1.0.3",
     "ts-node": "^7.0.1",
