@@ -1,6 +1,6 @@
 {
   "name": "@strong-roots-capital/barrier",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A TypeScript implementation of the synchronization primitive",
   "main": "dist/barrier.js",
   "types": "dist/barrier.d.ts",
