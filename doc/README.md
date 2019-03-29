@@ -135,7 +135,7 @@ This project was heavily inspired by the following packages
 
 ▸ **makeBarrier**<`T`>(count?: *`number`*): `function`
 
-*Defined in [barrier.ts:71](https://github.com/strong-roots-capital/barrier/blob/0a2a37d/src/barrier.ts#L71)*
+*Defined in [barrier.ts:71](https://github.com/strong-roots-capital/barrier/blob/a6aad46/src/barrier.ts#L71)*
 
 Create a barrier that stalls until `count` other executing-contexts reach the barrier.
 
